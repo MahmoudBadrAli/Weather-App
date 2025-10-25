@@ -74,3 +74,34 @@ Riyadh, Abu Dhabi, Manama, Kuwait, Muscat, Doha, Sanaa, Amman, Damascus, Beirut,
 - 💾 Persistent Preferences — automatically saves selected capital and language in localStorage.
 
 - ⚡ Smooth User Experience — fast, lightweight, and intuitive UI design.
+
+---
+
+## 🌍 Deployment
+
+This project is automatically deployed using Netlify.
+Every push to the main branch triggers a new deployment.
+
+## Author
+
+- Frontend Mentor - [Mahmoud Badr Ali](https://www.frontendmentor.io/profile/MahmoudBadrAli).
+
+### 👤 Made By
+> 💻 Developed with passion by **[Mahmoud Badr Ali]**  
+> 📬 Feel free to [contact me](mailto:mahmoudbadrali15@gmail.com) for collaboration or feedback.
+
+---
+
+## 📚 Learning Resources
+This project was built using knowledge from the following high-quality resource:
+
+[![React JS](https://img.icons8.com/color/48/000000/react-native.png)](https://www.youtube.com/watch?v=ihRRf3EjTV8&list=PLYyqC4bNbCIdSZ-JayMLl4WO2Cr995vyS)  ***React JS Course*** by [Akaademyat Tarmiz (أكاديمية ترميز)](https://www.youtube.com/@tarmeez)
+
+---
+
+## ✊ Free Palestine
+<p align="left">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/0/00/Flag_of_Palestine.svg" alt="Palestine Flag" width="75" style="vertical-align: middle; margin-right: 10px;"/>
+</p>
+Gaza is dying of hunger. If you can help, please do not hesitate.
+
