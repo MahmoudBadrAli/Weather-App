@@ -211,7 +211,10 @@ function App() {
                   {/* DEGREE & DESCRIPTION */}
                   <div>
                     {/* TEMP */}
-                    <div style={{ display: "flex", justifyContent: "center" }}>
+                    <div
+                      style={{ display: "flex", justifyContent: "center" }}
+                      dir={"rtl"}
+                    >
                       <Typography variant="h1" style={{ textAlign: "right" }}>
                         {`${weather.temp ?? "--"}`}
                       </Typography>
