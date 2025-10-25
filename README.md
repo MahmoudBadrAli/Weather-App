@@ -3,6 +3,7 @@
 A **React-based weather application** that displays the current weather, temperature range, and date for **Arab capitals**.  
 It supports **Arabic and English languages** and provides a clean UI powered by **Material UI**.
 
+🌐 **Live Demo:** [mahmoudbadr-todo.netlify.app](https://mahmoudbadr-weather-app.netlify.app)
 ---
 
 ## 🚀 Features
