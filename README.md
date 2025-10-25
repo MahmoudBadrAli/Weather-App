@@ -46,8 +46,9 @@ Your app should now be running at:
 - This app uses the OpenWeatherMap API to fetch live weather data.
 - To make it work: Create a free account at OpenWeatherMap.org.
 - Example:
-`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}` ```
+`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`
 
+```
 ---
 
 ## 🌐 Supported Capitals
