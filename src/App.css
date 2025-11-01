@@ -3,6 +3,21 @@
   text-align: center;
 }
 
+.wrong-location {
+  color: #e60000;
+  animation: flashing 1.5s infinite;
+}
+
+@keyframes flashing {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
 /* CUSTOM FONTS */
 @font-face {
   font-family: "Tajawal";

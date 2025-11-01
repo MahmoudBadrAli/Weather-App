@@ -14,14 +14,17 @@ import MenuItem from "@mui/material/MenuItem";
 import ListSubheader from "@mui/material/ListSubheader";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import CircularProgress from "@mui/material/CircularProgress";
+import WrongLocationIcon from "@mui/icons-material/WrongLocation";
 
 // EXTERNAL LIBRARIES
-import axios from "axios";
-
 import { useTranslation } from "react-i18next";
-
 import moment from "moment/min/moment-with-locales";
 moment.locale("ar");
+
+// REDUX
+import { useSelector, useDispatch } from "react-redux";
+import { fetchWeather } from "./features/api/weatherApiSlice";
 
 const theme = createTheme({
   typography: {
@@ -29,43 +32,44 @@ const theme = createTheme({
   },
 });
 
-let cancelAxios = null;
-
 const arabCapitals = {
-  // شبه الجزيرة العربية
-  Riyadh: { lat: 24.7136, lon: 46.6753 }, // السعودية
-  "Abu Dhabi": { lat: 24.4539, lon: 54.3773 }, // الإمارات
-  Manama: { lat: 26.2235, lon: 50.5876 }, // البحرين
-  Kuwait: { lat: 29.3759, lon: 47.9774 }, // الكويت
-  Muscat: { lat: 23.588, lon: 58.3829 }, // عمان
-  Doha: { lat: 25.2854, lon: 51.531 }, // قطر
-  Sanaa: { lat: 15.3694, lon: 44.191 }, // اليمن
+  Riyadh: { lat: 24.7136, lon: 46.6753, country: "Saudi Arabia" },
+  "Abu Dhabi": { lat: 24.4539, lon: 54.3773, country: "UAE" },
+  Manama: { lat: 26.2235, lon: 50.5876, country: "Bahrain" },
+  Kuwait: { lat: 29.3759, lon: 47.9774, country: "Kuwait" },
+  Muscat: { lat: 23.588, lon: 58.3829, country: "Oman" },
+  Doha: { lat: 25.2854, lon: 51.531, country: "Qatar" },
+  Sanaa: { lat: 15.3694, lon: 44.191, country: "Yemen" },
 
-  // الهلال الخصيب
-  Amman: { lat: 31.9539, lon: 35.9106 }, // الأردن
-  Damascus: { lat: 33.5138, lon: 36.2765 }, // سوريا
-  Beirut: { lat: 33.8938, lon: 35.5018 }, // لبنان
-  Jerusalem: { lat: 31.7769, lon: 35.2224 }, // فلسطين
-  Baghdad: { lat: 33.3152, lon: 44.3661 }, // العراق
+  Amman: { lat: 31.9539, lon: 35.9106, country: "Jordan" },
+  Damascus: { lat: 33.5138, lon: 36.2765, country: "Syria" },
+  Beirut: { lat: 33.8938, lon: 35.5018, country: "Lebanon" },
+  Jerusalem: { lat: 31.7769, lon: 35.2224, country: "Palestine" },
+  Baghdad: { lat: 33.3152, lon: 44.3661, country: "Iraq" },
 
-  // شمال أفريقيا
-  Khartoum: { lat: 15.5007, lon: 32.5599 }, // السودان
-  Cairo: { lat: 30.0444, lon: 31.2357 }, // مصر
-  Tripoli: { lat: 32.8872, lon: 13.1913 }, // ليبيا
-  Tunis: { lat: 36.8065, lon: 10.1815 }, // تونس
-  Algiers: { lat: 36.7538, lon: 3.0588 }, // الجزائر
-  Rabat: { lat: 34.0209, lon: -6.8416 }, // المغرب
-  Nouakchott: { lat: 18.079, lon: -15.965 }, // موريتانيا
+  Khartoum: { lat: 15.5007, lon: 32.5599, country: "Sudan" },
+  Cairo: { lat: 30.0444, lon: 31.2357, country: "Egypt" },
+  Tripoli: { lat: 32.8872, lon: 13.1913, country: "Libya" },
+  Tunis: { lat: 36.8065, lon: 10.1815, country: "Tunisia" },
+  Algiers: { lat: 36.7538, lon: 3.0588, country: "Algeria" },
+  Rabat: { lat: 34.0209, lon: -6.8416, country: "Morocco" },
+  Nouakchott: { lat: 18.079, lon: -15.965, country: "Mauritania" },
 
-  // شرق أفريقيا
-  Mogadishu: { lat: 2.0469, lon: 45.3182 }, // الصومال
-  Djibouti: { lat: 11.588, lon: 43.145 }, // جيبوتي
-  Moroni: { lat: -11.7172, lon: 43.2473 }, // جزر القمر
+  Mogadishu: { lat: 2.0469, lon: 45.3182, country: "Somalia" },
+  Djibouti: { lat: 11.588, lon: 43.145, country: "Djibouti" },
+  Moroni: { lat: -11.7172, lon: 43.2473, country: "Comoros" },
 };
 
 let showArabCapitals = [...Object.keys(arabCapitals)];
 
 function App() {
+  // REDUX CODE
+  const dispatch = useDispatch();
+  const isLoading = useSelector((state) => state.weatherApi.isLoading);
+  const isFailed = useSelector((state) => state.weatherApi.isFailed);
+  const weather = useSelector((state) => state.weatherApi.weather);
+
+  // I18N CODE
   const { t, i18n } = useTranslation();
 
   // =================== STATES ===================
@@ -73,24 +77,17 @@ function App() {
     localStorage.getItem("capital") || "Cairo"
   );
 
-  const handleChange = (event) => {
-    setCapital(event.target.value);
-    localStorage.setItem("capital", event.target.value);
-  };
-
   const [locale, setLocale] = useState(localStorage.getItem("locale") || "ar");
   const [dataAndTime, setDataAndTime] = useState("");
-  const [weather, setWeather] = useState({
-    temp: null,
-    description: "",
-    min: null,
-    max: null,
-    icon: null,
-  });
 
   const direction = locale === "en" ? "ltr" : "rtl";
 
   // =================== EVENT HANDLERS ===================
+
+  const handleChange = (event) => {
+    setCapital(event.target.value);
+    localStorage.setItem("capital", event.target.value);
+  };
 
   useEffect(() => {
     const savedLocale = localStorage.getItem("locale") || "ar";
@@ -105,45 +102,19 @@ function App() {
     setLocale(newLocale);
     i18n.changeLanguage(newLocale);
     moment.locale(newLocale);
-    setDataAndTime(moment().format("dddd، D MMMM YYYY"));
+    setDataAndTime(moment().format("dddd, D MMMM YYYY"));
     localStorage.setItem("locale", newLocale);
   }
 
   useEffect(() => {
-    setDataAndTime(moment().format("dddd، D MMMM YYYY"));
-
-    axios
-      .get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${arabCapitals[capital].lat}&lon=${arabCapitals[capital].lon}&appid=f77d2383fef24695e931f17677bbf408`,
-        {
-          cancelToken: new axios.CancelToken((c) => {
-            cancelAxios = c;
-          }),
-        }
-      )
-      .then(function (response) {
-        // handle success
-        const temp = response.data.main.temp;
-        const min = response.data.main.temp_min;
-        const max = response.data.main.temp_max;
-        const decription = response.data.weather[0].description;
-        const responseIcon = response.data.weather[0].icon;
-        setWeather({
-          temp: Math.round(temp - 273.15),
-          min: Math.round(min - 273.15),
-          max: Math.round(max - 273.15),
-          description: decription,
-          icon: `https://openweathermap.org/img/wn/${responseIcon}@2x.png`,
-        });
+    dispatch(
+      fetchWeather({
+        lat: arabCapitals[capital].lat,
+        lon: arabCapitals[capital].lon,
       })
-      .catch(function (error) {
-        // handle error
-        console.log(error);
-      });
-
-    return () => {
-      if (cancelAxios) cancelAxios();
-    };
+    );
+    setDataAndTime(moment().format("dddd, D MMMM YYYY"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [capital]);
 
   return (
@@ -167,7 +138,7 @@ function App() {
                 width: "100%",
                 background: "rgb(28 52 91 / 36%)",
                 color: "white",
-                padding: "20px",
+                padding: "12px 20px",
                 borderRadius: "15px",
                 boxShadow: "0px 11px 1px rgba(0,0,0,0.05)",
               }}
@@ -187,19 +158,23 @@ function App() {
                     variant="h2"
                     style={{
                       marginRight: "20px",
-                      fontWeight: "600",
                     }}
                   >
                     {t(capital)}
                   </Typography>
 
-                  <Typography variant="h5" style={{ marginRight: "20px" }}>
+                  <Typography
+                    variant="h5"
+                    style={{ marginRight: "20px", fontWeight: "300" }}
+                  >
                     {dataAndTime}
                   </Typography>
                 </div>
                 {/* == CITY & TIME == */}
 
-                <hr style={{ marginTop: "20px" }} />
+                <hr
+                  style={{ marginTop: direction == "rtl" ? "15px" : "10px" }}
+                />
 
                 {/* CONTAINER OF DEGREE + CLOUD ICON */}
                 <div
@@ -209,49 +184,129 @@ function App() {
                   }}
                 >
                   {/* DEGREE & DESCRIPTION */}
-                  <div>
-                    {/* TEMP */}
-                    <div
-                      style={{ display: "flex", justifyContent: "center" }}
-                      dir={"rtl"}
-                    >
-                      <Typography variant="h1" style={{ textAlign: "right" }}>
-                        {`${weather.temp ?? "--"}`}
+                  {isFailed ? (
+                    <WrongLocationIcon
+                      className="wrong-location"
+                      style={{ fontSize: "175px" }}
+                    ></WrongLocationIcon>
+                  ) : (
+                    <div>
+                      {/* TEMP */}
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                        dir={"rtl"}
+                      >
+                        {isLoading ? (
+                          <CircularProgress
+                            style={{
+                              color: "white",
+                              margin: "25px 0",
+                              width: "65px",
+                              height: "65px",
+                            }}
+                          />
+                        ) : (
+                          <>
+                            <Typography
+                              variant="h1"
+                              style={{ textAlign: "right" }}
+                            >
+                              {weather.temp}
+                            </Typography>
+                            <img src={weather.icon} alt="weather icon" />
+                          </>
+                        )}
+                      </div>
+                      {/*== TEMP ==*/}
+
+                      <Typography
+                        style={{
+                          fontWeight: "200",
+                          marginTop: "-10px",
+                          marginBottom: "5px",
+                        }}
+                        variant="h6"
+                      >
+                        {t("Feels Like")}:
+                        {weather.feelsLike ? (
+                          " " + weather.feelsLike
+                        ) : (
+                          <CircularProgress
+                            size={18}
+                            style={{ color: "white", marginRight: "5px" }}
+                          />
+                        )}
                       </Typography>
 
-                      <img src={weather.icon} alt="weather icon" />
+                      <Typography
+                        style={{ fontWeight: "300" }}
+                        variant="h6"
+                      >{`${t(weather.description)}`}</Typography>
+
+                      {/* MIN & MAX */}
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography variant="h6">
+                          {t("High")}:{" "}
+                          {weather.min ?? (
+                            <CircularProgress
+                              size={18}
+                              style={{ color: "white" }}
+                            />
+                          )}
+                        </Typography>
+                        <h5 style={{ margin: "12px" }}>|</h5>
+                        <Typography variant="h6">
+                          {t("Low")}:{" "}
+                          {weather.max ?? (
+                            <CircularProgress
+                              size={18}
+                              style={{ color: "white" }}
+                            />
+                          )}
+                        </Typography>
+                      </div>
                     </div>
-                    {/*== TEMP ==*/}
-
-                    <Typography variant="h6">{`${t(
-                      weather.description
-                    )}`}</Typography>
-
-                    {/* MIN & MAX */}
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Typography variant="h6">
-                        {t("High")}: {weather.min ?? "--"}
-                      </Typography>
-                      <h5 style={{ margin: "12px" }}>|</h5>
-                      <Typography variant="h6">
-                        {t("Low")}: {weather.max ?? "--"}
-                      </Typography>
-                    </div>
-                  </div>
+                  )}
                   {/*== DEGREE & DESCRIPTION ==*/}
 
-                  <CloudIcon
-                    style={{
-                      fontSize: "200px",
-                      color: "white",
-                    }}
-                  />
+                  {isFailed ? (
+                    <div>
+                      <p
+                        style={{
+                          fontSize: "35px",
+                          color: "white",
+                          lineHeight: "1.2",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        {t("Whoops! a little glitch happened")}
+                      </p>
+                      <span
+                        style={{
+                          letterSpacing: "1.5px",
+                        }}
+                      >
+                        {t("Please try again later")}
+                      </span>
+                    </div>
+                  ) : (
+                    <CloudIcon
+                      style={{
+                        fontSize: "200px",
+                        color: "white",
+                      }}
+                    />
+                  )}
                 </div>
                 {/*= CONTAINER OF DEGREE + CLOUD ICON ==*/}
               </div>
@@ -303,7 +358,14 @@ function App() {
                   }}
                 >
                   {showArabCapitals.map((capital) => {
-                    return <MenuItem value={capital}>{t(capital)}</MenuItem>;
+                    return [
+                      <ListSubheader key={`${capital}-header`}>
+                        {t(arabCapitals[capital].country)}
+                      </ListSubheader>,
+                      <MenuItem key={capital} value={capital}>
+                        {t(capital)}
+                      </MenuItem>,
+                    ];
                   })}
                 </Select>
               </FormControl>

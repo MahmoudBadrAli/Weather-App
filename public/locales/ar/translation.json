@@ -1,4 +1,6 @@
 {
+  "Feels Like": "الإحساس بالحرارة",
+
   "High": "العظمى",
   "Low": "الصغرى",
 
@@ -39,6 +41,27 @@
   "thunderstorm with snow": "عاصفة رعدية مع ثلج",
   "thunderstorm with hail": "عاصفة رعدية مع برد",
 
+  "Saudi Arabia": "السعودية",
+  "UAE": "الإمارات",
+  "Bahrain": "البحرين",
+  "Oman": "عمان",
+  "Qatar": "قطر",
+  "Yemen": "اليمن",
+  "Jordan": "الأردن",
+  "Syria": "سوريا",
+  "Lebanon": "لبنان",
+  "Palestine": "فلسطين",
+  "Iraq": "العراق",
+  "Sudan": "السودان",
+  "Egypt": "مصر",
+  "Libya": "ليبيا",
+  "Tunisia": "تونس",
+  "Algeria": "الجزائر",
+  "Morocco": "المغرب",
+  "Mauritania": "موريتانيا",
+  "Somalia": "الصومال",
+  "Comoros": "جزر القمر",
+
   "Capitals": "العواصم",
   "Riyadh": "الرياض",
   "Abu Dhabi": "أبو ظبي",
@@ -61,5 +84,8 @@
   "Nouakchott": "نواكشوط",
   "Mogadishu": "مقديشو",
   "Djibouti": "جيبوتي",
-  "Moroni": "موروني"
+  "Moroni": "موروني",
+
+  "Whoops! a little glitch happened": "عفوًا حدث خلل بسيط!",
+  "Please try again later": "يرجى المحاولة مرة أخرى لاحقًا"
 }
